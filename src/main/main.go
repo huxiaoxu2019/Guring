@@ -16,10 +16,10 @@ func main() {
 	http.HandleFunc("/",
 		func(w http.ResponseWriter, req *http.Request) {
 			requestedFile := req.URL.Path[1:]
+			log.Println("view event:", req)
+			var context interface{} = nil
 			template :=
 				templates.Lookup(requestedFile + ".html")
-
-			var context interface{} = nil
 			switch requestedFile {
 			case "room":
 				context = viewmodels.GetRoom()
@@ -27,9 +27,6 @@ func main() {
 				context = viewmodels.GetAbout()
 			case "login":
 				context = viewmodels.GetLogin()
-				//case "api/getdata":
-
-				//case "api/postdata":
 			}
 			if template != nil {
 				template.Execute(w, context)
@@ -39,15 +36,17 @@ func main() {
 		})
 
 	http.HandleFunc("/api/", func(w http.ResponseWriter, req *http.Request) {
-		requestedFile := req.URL.Path[1:]
-		log.Println("Receive the api url, the file name is", requestedFile)
+		requestedFile := req.URL.Path[5:]
+		log.Println("api event:", req)
+		var context []byte
 		switch requestedFile {
 		case "getdata":
+			context = apimodels.GetData(req)
 		case "postdata":
+			context = apimodels.PostData(req)
 		}
-		b := apimodels.GetDemoData()
 		w.WriteHeader(200)
-		w.Write(b)
+		w.Write(context)
 	})
 
 	http.HandleFunc("/img/", serveResource)

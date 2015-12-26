@@ -87,114 +87,6 @@
               <span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span>&nbsp;Chat Window</div>
             <div id="chat-content" class="panel-body">
               <ul class="chat-list-ul">
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
-                <li class="chat-list-li">
-                  <p class="text-center chat-time">2015-12-23 22:21:08</p>
-                  <p class="text-left chat-name"><strong>GenialX</strong> <i>Said</i>: 
-                    <span>
-                      Baitch....
-                    </span>
-                  </p>
-                  <hr class="chat-line"/>
-               </li>
              </ul>
             </div>
           </div>
@@ -241,16 +133,18 @@
         var HEIGHT_PER_LIST = 40; // 每个LI的高度（像素）
         var DEBUG = false;
         var ROLL_SPEED = 'fast'; // 聊天窗口滚动速度
-        var LEFT_LI_MAX = 10; //允许保留的LI数量
-
-        var Room = function() {
-
+		var LEFT_LI_MAX = 10; //允许保留的LI数量
+		// 聊天记录的起始时间
+        var msgStartTimestamp = new Date().getTime() - (1000 * 60 * 10 * 6);
+		var GET_SEC_PER_ONE_TIME = 3; // 没几秒钟拉取一次数据
+		var Room = function() {
+			
             // 聊天窗口
             var chatViewRun = function() {
               var timer = setInterval( function() {
                   _getChatData();
                   //clearInterval(timer);
-              } , 1000);
+              } , 1000 * GET_SEC_PER_ONE_TIME);
             };
 
             // 获取数据
@@ -259,8 +153,7 @@
 		    //var obj = $.parseJSON(result); 
 		    
 		    //return content;
-
-                    $.get("/api/getdata?roomid=1720", function(result){
+                    $.get("/api/getdata?roomid=1720&msgstarttimestamp=" + msgStartTimestamp, function(result){
                       if(DEBUG) alert("getdata ok");
 		      var obj = $.parseJSON(result);
 			if(obj.ErrorCode == 0) {
@@ -276,6 +169,9 @@
 				
 			
 		      });
+					// 更改消息读取的起始时间
+					msgStartTimestamp = new Date().getTime();
+					
 
             }
 
@@ -346,15 +242,25 @@
 
             var _inputSentEvent = function() {
                     var data = _getSentInput();
-                    _clearSentInput();
+					if(DEBUG) alert("input value:" + data);
+					_sendInputData(data);
             };
 
+
             // 发送input内容
-            var _sendInputData = function(data) {
-                // 异步
-                $.post("/api/postdata", { roomid: "1720", name: "John", content: "Hmmm....", time: "123123123" },
+            var _sendInputData = function(content) {
+				// 异步
+				if(DEBUG) alert("_sendInputData")
+                $.post("/api/postdata", { roomid: "1720", name: "John", content: content },
                    function(data){
-                     if(DEBUG) alert("send input data ok");
+				   if(DEBUG) alert("send input data ok");
+				   var obj = $.parseJSON(data);
+				   if(obj.ErrorCode == 0) {
+						
+                    _clearSentInput();
+					} else {
+					alert("抱歉，发送消息失败，请联系作者");
+					}
                 });
             }
 

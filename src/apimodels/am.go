@@ -5,3 +5,11 @@ type APIModel struct {
 	ErrorMsg  string
 	Data      string
 }
+
+type MsgModel struct {
+	Content string
+	Name    string
+	Time    float64
+}
+
+const RedisRoomKey = "room_1720"
