@@ -19,16 +19,23 @@ func PostData(req *http.Request) []byte {
 		Content: content,
 		Time:    millis,
 	}
-	pushRs := pushMsgToRedis(msg)
+	_, err := pushMsgToRedis(msg)
 
-	if pushRs == false {
-		log.Println("Push msg failed")
+	var errorCode int
+	var errorMsg string
+	if err != nil {
+		errorCode = 1
+		errorMsg = "fail"
+	} else {
+		errorCode = 0
+		errorMsg = "successful"
 	}
 
 	result := APIModel{
-		ErrorCode: 0,
-		ErrorMsg:  "successful",
+		ErrorCode: errorCode,
+		ErrorMsg:  errorMsg,
 		Data:      "",
+		LastTime:  0,
 	}
 	b, err := json.Marshal(result)
 	if err != nil {
@@ -37,22 +44,17 @@ func PostData(req *http.Request) []byte {
 	return b
 }
 
-func pushMsgToRedis(Msg MsgModel) bool {
+func pushMsgToRedis(Msg MsgModel) (bool, error) {
 	b, err := json.Marshal(Msg)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
 	value := ""
 	for i := 0; i < len(b); i++ {
 		value += string(b[i])
 	}
+	_, _ = redis.ZAdd(RedisRoomKey, Msg.Time, value)
 
-	count := redis.ZAdd(RedisRoomKey, value)
-	if count < 1 {
-		return false
-	}
-
-	return true
+	return true, nil
 
 }

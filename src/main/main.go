@@ -4,6 +4,7 @@ import (
 	"apimodels"
 	"bufio"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"strings"
@@ -16,13 +17,18 @@ func main() {
 	http.HandleFunc("/",
 		func(w http.ResponseWriter, req *http.Request) {
 			requestedFile := req.URL.Path[1:]
-			log.Println("view event:", req)
+			//	log.Println("view event:", req)
+			req.ParseForm()
 			var context interface{} = nil
 			template :=
 				templates.Lookup(requestedFile + ".html")
 			switch requestedFile {
 			case "room":
-				context = viewmodels.GetRoom()
+				nickname := req.PostFormValue("nickname")
+				if nickname == "" {
+					nickname = "Visitor" + string(rand.Intn(100))
+				}
+				context = viewmodels.GetRoom(nickname)
 			case "about":
 				context = viewmodels.GetAbout()
 			case "login":
@@ -37,7 +43,7 @@ func main() {
 
 	http.HandleFunc("/api/", func(w http.ResponseWriter, req *http.Request) {
 		requestedFile := req.URL.Path[5:]
-		log.Println("api event:", req)
+		//log.Println("api event:", req)
 		var context []byte
 		switch requestedFile {
 		case "getdata":
@@ -57,7 +63,7 @@ func main() {
 }
 
 func serveResource(w http.ResponseWriter, req *http.Request) {
-	log.Println("serveResource")
+	//log.Println("serveResource")
 	path := "public" + req.URL.Path
 	var contentType string
 	if strings.HasSuffix(path, ".css") {
@@ -74,8 +80,8 @@ func serveResource(w http.ResponseWriter, req *http.Request) {
 		contentType = "text/plain"
 	}
 
-	log.Println(path)
-	log.Println(contentType)
+	//	log.Println(path)
+	//	log.Println(contentType)
 
 	f, err := os.Open(path)
 
@@ -90,7 +96,7 @@ func serveResource(w http.ResponseWriter, req *http.Request) {
 }
 
 func populateTemplates() *template.Template {
-	log.Println("populateTemplates")
+	//	log.Println("populateTemplates")
 	result := template.New("templates")
 
 	basePath := "templates"
@@ -100,7 +106,7 @@ func populateTemplates() *template.Template {
 	templatePathsRaw, _ := templateFolder.Readdir(-1)
 	templatePaths := new([]string)
 	for _, pathInfo := range templatePathsRaw {
-		log.Println(pathInfo.Name())
+		//		log.Println(pathInfo.Name())
 		if !pathInfo.IsDir() {
 			*templatePaths = append(*templatePaths,
 				basePath+"/"+pathInfo.Name())
